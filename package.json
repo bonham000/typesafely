@@ -1,0 +1,20 @@
+{
+  "name": "rustscript",
+  "version": "0.0.1",
+  "description": "TypeScript types designed to emulate useful Rust types and patterns",
+  "author": "https://github.com/bonham000",
+  "repository": "https://github.com/bonham000/rustscript",
+  "main": "src/main.ts",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.5.5"
+  }
+}
