@@ -6,6 +6,7 @@ import {
   AsyncResultLoading,
   AsyncOk,
   AsyncErr,
+  Result,
 } from "./main";
 
 describe("Result type", () => {
@@ -15,7 +16,7 @@ describe("Result type", () => {
     );
   };
 
-  test("matchResult ok variant", () => {
+  test("matchResult Ok variant", () => {
     const expected = {
       flag: true,
       data: [1, 2, 3, 4, 5],
@@ -30,7 +31,7 @@ describe("Result type", () => {
     expect(result).toEqual(expected);
   });
 
-  test("matchResult err variant", () => {
+  test("matchResult Err variant", () => {
     const expected = "Error Variant";
     const result = matchResult(Err(expected), {
       ok: panic,
@@ -38,6 +39,17 @@ describe("Result type", () => {
     });
 
     expect(result).toBe(expected);
+  });
+
+  test("Result unwrap and unwrapOr for Ok variants", () => {
+    const data = 100;
+    expect(Ok(data).unwrap()).toEqual(data);
+    expect(Ok(data).unwrapOr(700)).toEqual(data);
+  });
+
+  test("Result unwrap and unwrapOr for Err variants", () => {
+    expect(() => Err("Error").unwrap("Failed!")).toThrowError("Failed!");
+    expect(Err("Error").unwrapOr(700)).toEqual(700);
   });
 });
 
@@ -48,7 +60,7 @@ describe("AsyncResult type", () => {
     );
   };
 
-  test("matchAsyncResult ok variant", () => {
+  test("matchAsyncResult AsyncOk variant", () => {
     const expected = {
       flag: true,
       data: [1, 2, 3, 4, 5],
@@ -64,7 +76,7 @@ describe("AsyncResult type", () => {
     expect(result).toEqual(expected);
   });
 
-  test("matchAsyncResult err variant", () => {
+  test("matchAsyncResult AsyncErr variant", () => {
     const expected = "Error Variant";
     const result = matchAsyncResult(AsyncErr(expected), {
       ok: panic,
@@ -75,7 +87,7 @@ describe("AsyncResult type", () => {
     expect(result).toBe(expected);
   });
 
-  test("matchAsyncResult loading variant", () => {
+  test("matchAsyncResult AsyncResultLoading variant", () => {
     const expected = "Loading Variant";
     const result = matchAsyncResult(AsyncResultLoading(), {
       ok: panic,
@@ -84,5 +96,23 @@ describe("AsyncResult type", () => {
     });
 
     expect(result).toBe(expected);
+  });
+
+  test("AsyncResult unwrap and unwrapOr for AsyncOk variants", () => {
+    const data = 900;
+    expect(AsyncOk(data).unwrap()).toEqual(data);
+    expect(AsyncOk(data).unwrapOr(42)).toEqual(data);
+  });
+
+  test("AsyncResult unwrap and unwrapOr for AsyncErr variants", () => {
+    expect(() => AsyncErr("Error").unwrap("Failed!")).toThrowError("Failed!");
+    expect(AsyncErr("Error").unwrapOr(700)).toEqual(700);
+  });
+
+  test("AsyncResult unwrap and unwrapOr for AsyncResultLoading variants", () => {
+    expect(() => AsyncResultLoading().unwrap("Failed!")).toThrowError(
+      "Failed!",
+    );
+    expect(AsyncResultLoading().unwrapOr(700)).toEqual(700);
   });
 });
