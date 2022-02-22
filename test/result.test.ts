@@ -6,6 +6,8 @@ import {
   AsyncResultLoading,
   AsyncOk,
   AsyncErr,
+  AsyncResult,
+  Result,
 } from "../src/result";
 import { panic } from "../src/utils";
 
@@ -122,6 +124,33 @@ describe("AsyncResult Type", () => {
       "Failed!",
     );
     expect(AsyncResultLoading().unwrapOr(700)).toEqual(700);
+  });
+
+  test("Result isOk and isErr methods", () => {
+    let result: Result<number, string> = Ok(100);
+    expect(result.isOk()).toBe(true);
+    expect(result.isErr()).toBe(false);
+
+    result = Err("Error!");
+    expect(result.isOk()).toBe(false);
+    expect(result.isErr()).toBe(true);
+  });
+
+  test("AsyncResult isOk, isErr and isLoading methods", () => {
+    let result: AsyncResult<number, string> = AsyncOk(100);
+    expect(result.isOk()).toBe(true);
+    expect(result.isErr()).toBe(false);
+    expect(result.isLoading()).toBe(false);
+
+    result = AsyncErr("Error!");
+    expect(result.isOk()).toBe(false);
+    expect(result.isErr()).toBe(true);
+    expect(result.isLoading()).toBe(false);
+
+    result = AsyncResultLoading();
+    expect(result.isOk()).toBe(false);
+    expect(result.isErr()).toBe(false);
+    expect(result.isLoading()).toBe(true);
   });
 
   test("AsyncResult ifOk, ifErr, and ifLoading methods", () => {

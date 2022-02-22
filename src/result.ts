@@ -9,6 +9,18 @@ interface OkVariant<T> {
   readonly ok: true;
   readonly value: T;
   /**
+   * Check if the Result is in the Ok state.
+   */
+  isOk: () => true;
+  /**
+   * Check if the Result is in the Err state.
+   */
+  isErr: () => false;
+  /**
+   * Check if the Result is in the Loading state.
+   */
+  isLoading: () => false;
+  /**
    * Unwrap the Result and return the enclosed value. Will throw an error
    * if the Result is in a non-Ok None state.
    *
@@ -36,6 +48,18 @@ interface ErrVariant<T, E> {
   readonly ok: false;
   readonly error: E;
   /**
+   * Check if the Result is in the Ok state.
+   */
+  isOk: () => false;
+  /**
+   * Check if the Result is in the Err state.
+   */
+  isErr: () => true;
+  /**
+   * Check if the Result is in the Loading state.
+   */
+  isLoading: () => false;
+  /**
    * Unwrap the Result and return the enclosed value. Will throw an error
    * if the Result is in a non-Ok None state.
    *
@@ -61,6 +85,18 @@ interface ErrVariant<T, E> {
 interface AsyncLoadingVariant<T> {
   readonly ok: false;
   readonly loading: true;
+  /**
+   * Check if the Result is in the Ok state.
+   */
+  isOk: () => false;
+  /**
+   * Check if the Result is in the Err state.
+   */
+  isErr: () => false;
+  /**
+   * Check if the Result is in the Loading state.
+   */
+  isLoading: () => true;
   /**
    * Unwrap the Result and return the enclosed value. Will throw an error
    * if the Result is in a non-Ok None state.
@@ -142,6 +178,9 @@ export type Result<T, E> = OkVariant<T> | ErrVariant<T, E>;
 export const Ok = <T>(value: T): Result<T, never> => ({
   ok: true,
   value,
+  isOk: () => true,
+  isErr: () => false,
+  isLoading: () => false,
   unwrap: () => value,
   unwrapOr: () => value,
   ifOk: ifOkFn(value),
@@ -154,6 +193,9 @@ export const Ok = <T>(value: T): Result<T, never> => ({
 export const Err = <T, E>(error: E): Result<T, E> => ({
   ok: false,
   error,
+  isOk: () => false,
+  isErr: () => true,
+  isLoading: () => false,
   unwrap: unwrap("Tried to unwrap a Result which was in the Err state!"),
   unwrapOr: unwrapOr<T>(),
   ifOk: noopFn,
@@ -221,6 +263,9 @@ export type AsyncResult<T, E> =
 export const AsyncOk = <T>(value: T): AsyncResult<T, never> => ({
   ok: true,
   value,
+  isOk: () => true,
+  isErr: () => false,
+  isLoading: () => false,
   unwrap: () => value,
   unwrapOr: () => value,
   ifOk: ifOkFn(value),
@@ -234,6 +279,9 @@ export const AsyncOk = <T>(value: T): AsyncResult<T, never> => ({
 export const AsyncErr = <T, E>(error: E): AsyncResult<T, E> => ({
   ok: false,
   error,
+  isOk: () => false,
+  isErr: () => true,
+  isLoading: () => false,
   unwrap: unwrap("Tried to unwrap an AsyncResult which was in the Err state!"),
   unwrapOr: unwrapOr<T>(),
   ifOk: noopFn,
@@ -247,6 +295,9 @@ export const AsyncErr = <T, E>(error: E): AsyncResult<T, E> => ({
 export const AsyncResultLoading = <T>(): AsyncResult<T, never> => ({
   ok: false,
   loading: true,
+  isOk: () => false,
+  isErr: () => false,
+  isLoading: () => true,
   unwrap: unwrap(
     "Tried to unwrap an AsyncResult which was in the AsyncResultLoading state!",
   ),
