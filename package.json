@@ -10,6 +10,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
+    "test:watch": "jest --watch",
     "example": "npx ts-node -O '{\"module\":\"commonjs\"}' ./src/example.ts"
   },
   "devDependencies": {

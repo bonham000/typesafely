@@ -190,6 +190,8 @@ export const matchAsyncResult = <T, E, R1, R2, R3>(
  * ============================================================================
  */
 
+type IfSomeFn<T> = (value: T) => void;
+
 type SomeVariant<T> = {
   value: T;
   some: true;
@@ -205,6 +207,11 @@ type SomeVariant<T> = {
    * Unwrap the Option or return the given default value.
    */
   unwrapOr: () => T;
+  /**
+   * Method which accepts a function to run against the wrapped
+   * Option value, only if it is present.
+   */
+  ifSome: (fn: IfSomeFn<T>) => void;
 };
 
 type NoneVariant<T> = {
@@ -218,6 +225,8 @@ type NoneVariant<T> = {
    * Unwrap the Option or return the given default value.
    */
   unwrapOr: (defaultValue: T) => T;
+
+  ifSome: () => void;
 };
 
 /**
@@ -233,7 +242,14 @@ export const Some = <T>(value: T): Option<T> => ({
   value,
   unwrap: () => value,
   unwrapOr: () => value,
+  ifSome: ifSomeFn(value),
 });
+
+const ifSomeFn = <T>(value: T) => {
+  return (fn: IfSomeFn<T>) => {
+    fn(value);
+  };
+};
 
 /**
  * Create a new Option None variant.
@@ -242,6 +258,7 @@ export const None = <T>(): Option<T> => ({
   some: false,
   unwrap: unwrap("Tried to unwrap an Option which was in the None state!"),
   unwrapOr: unwrapOr<T>(),
+  ifSome: () => null,
 });
 
 interface OptionMatcher<T, R1, R2> {

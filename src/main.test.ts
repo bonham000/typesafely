@@ -54,6 +54,19 @@ describe("Option Type", () => {
     expect(() => opt.unwrap("Failed!")).toThrowError("Failed!");
     expect(opt.unwrapOr(10)).toEqual(10);
   });
+
+  test("Option ifSome method", () => {
+    let opt = Some(10);
+    opt.ifSome((value) => {
+      expect(value).toBe(10);
+    });
+
+    opt = None();
+    opt.ifSome(panic);
+
+    const none: Option<number> = None();
+    none.ifSome(panic);
+  });
 });
 
 describe("Result Type", () => {
