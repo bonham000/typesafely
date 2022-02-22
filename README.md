@@ -1,6 +1,6 @@
 # RustScript
 
-TypeScript types (`Result`, `Option`, and `AsyncResult`) designed to emulate Rust types and patterns.
+TypeScript types (`Option`, `Result` and `AsyncResult`) designed to emulate Rust types and patterns.
 
 ```ts
 type CalculationResult = Result<CalculationOk, CalculationError>;
