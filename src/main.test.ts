@@ -67,6 +67,19 @@ describe("Option Type", () => {
     const none: Option<number> = None();
     none.ifSome(panic);
   });
+
+  test("Option ifNone method", () => {
+    let opt = Some(10);
+    opt.ifNone(panic);
+
+    opt = None();
+    opt.ifSome(panic);
+
+    opt = None();
+    opt.ifNone(() => {
+      expect(true).toBe(true);
+    });
+  });
 });
 
 describe("Result Type", () => {

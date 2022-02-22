@@ -190,8 +190,6 @@ export const matchAsyncResult = <T, E, R1, R2, R3>(
  * ============================================================================
  */
 
-type IfSomeFn<T> = (value: T) => void;
-
 type SomeVariant<T> = {
   value: T;
   some: true;
@@ -208,10 +206,15 @@ type SomeVariant<T> = {
    */
   unwrapOr: () => T;
   /**
-   * Method which accepts a function to run against the wrapped
-   * Option value, only if it is present.
+   * Perform some action for a Some variant. This is intended for side
+   * effects or conditional actions, and does not return any values.
    */
-  ifSome: (fn: IfSomeFn<T>) => void;
+  ifSome: (fn: IfSomeFn<T>) => never;
+  /**
+   * Perform some action for a None variant. This does nothing for Some
+   * variants.
+   */
+  ifNone: () => never;
 };
 
 type NoneVariant<T> = {
@@ -225,14 +228,46 @@ type NoneVariant<T> = {
    * Unwrap the Option or return the given default value.
    */
   unwrapOr: (defaultValue: T) => T;
-
-  ifSome: () => void;
+  /**
+   * Perform some action for a Some variant. This does nothing for None
+   * variants.
+   */
+  ifSome: () => never;
+  /**
+   * Perform some action for a None variant. This is intended for side
+   * effects or conditional actions, and does not return any values.
+   */
+  ifNone: (fn: IfNoneFn) => never;
 };
 
 /**
  * The Option type models a value which is either present or absent.
  */
 export type Option<T> = SomeVariant<T> | NoneVariant<T>;
+
+/**
+ * Method which runs a callback function conditionally for a Some Option
+ * variant.
+ */
+type IfSomeFn<T> = (value: T) => any;
+const ifSomeFn = <T>(value: T) => {
+  return (fn: IfSomeFn<T>) => {
+    fn(value);
+    return null as never;
+  };
+};
+
+/**
+ * Method which runs a callback function conditionally for a None Option
+ * variant.
+ */
+type IfNoneFn = () => any;
+const ifNoneFn = () => {
+  return (fn: IfNoneFn) => {
+    fn();
+    return null as never;
+  };
+};
 
 /**
  * Create a new Option Some variant.
@@ -243,13 +278,8 @@ export const Some = <T>(value: T): Option<T> => ({
   unwrap: () => value,
   unwrapOr: () => value,
   ifSome: ifSomeFn(value),
+  ifNone: () => null as never,
 });
-
-const ifSomeFn = <T>(value: T) => {
-  return (fn: IfSomeFn<T>) => {
-    fn(value);
-  };
-};
 
 /**
  * Create a new Option None variant.
@@ -258,7 +288,8 @@ export const None = <T>(): Option<T> => ({
   some: false,
   unwrap: unwrap("Tried to unwrap an Option which was in the None state!"),
   unwrapOr: unwrapOr<T>(),
-  ifSome: () => null,
+  ifSome: () => null as never,
+  ifNone: ifNoneFn(),
 });
 
 interface OptionMatcher<T, R1, R2> {
