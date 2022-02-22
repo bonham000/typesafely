@@ -8,8 +8,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "tsc",
-    "test": "jest --verbose",
+    "build": "rm -rf build && tsc",
+    "test": "jest",
     "test:watch": "jest --watch --verbose",
     "example": "npx ts-node -O '{\"module\":\"commonjs\"}' ./src/index.ts"
   },
