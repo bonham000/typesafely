@@ -9,7 +9,8 @@
   "private": false,
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "example": "npx ts-node -O '{\"module\":\"commonjs\"}' ./src/example.ts"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
