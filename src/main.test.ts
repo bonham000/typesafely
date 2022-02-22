@@ -10,11 +10,19 @@ import {
   Some,
   matchOption,
   None,
+  assertUnreachable,
 } from "./main";
 
 const panic = () => {
   throw new Error("An invalid match branch case occurred!");
 };
+
+describe("assertUnreachable", () => {
+  test("Throws for any given value", () => {
+    const x = 500 as never;
+    expect(() => assertUnreachable(x)).toThrow();
+  });
+});
 
 describe("Option Type", () => {
   test("matchOption Some variant", () => {
