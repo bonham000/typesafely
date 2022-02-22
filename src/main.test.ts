@@ -16,6 +16,38 @@ const panic = () => {
   throw new Error("An invalid match branch case occurred!");
 };
 
+describe("Option Type", () => {
+  test("matchOption Some variant", () => {
+    const opt: Option<number> = Some(1000);
+    const value = matchOption(opt, {
+      some: (x) => x,
+      none: panic,
+    });
+    expect(value).toEqual(1000);
+  });
+
+  test("matchOption None variant", () => {
+    const opt: Option<number> = None();
+    const value = matchOption(opt, {
+      some: (x) => x,
+      none: () => 5000,
+    });
+    expect(value).toEqual(5000);
+  });
+
+  test("matchOption unwrap and unwrapOr for Some variant", () => {
+    const opt: Option<number> = Some(50);
+    expect(opt.unwrap()).toEqual(50);
+    expect(opt.unwrapOr(10)).toEqual(50);
+  });
+
+  test("matchOption unwrap and unwrapOr for None variant", () => {
+    const opt: Option<number> = None();
+    expect(() => opt.unwrap("Failed!")).toThrowError("Failed!");
+    expect(opt.unwrapOr(10)).toEqual(10);
+  });
+});
+
 describe("Result Type", () => {
   test("matchResult Ok variant", () => {
     const expected = {
@@ -109,37 +141,5 @@ describe("AsyncResult Type", () => {
       "Failed!",
     );
     expect(AsyncResultLoading().unwrapOr(700)).toEqual(700);
-  });
-});
-
-describe("Option Type", () => {
-  test("matchOption Some variant", () => {
-    const opt: Option<number> = Some(1000);
-    const value = matchOption(opt, {
-      some: (x) => x,
-      none: panic,
-    });
-    expect(value).toEqual(1000);
-  });
-
-  test("matchOption None variant", () => {
-    const opt: Option<number> = None();
-    const value = matchOption(opt, {
-      some: (x) => x,
-      none: () => 5000,
-    });
-    expect(value).toEqual(5000);
-  });
-
-  test("matchOption unwrap and unwrapOr for Some variant", () => {
-    const opt: Option<number> = Some(50);
-    expect(opt.unwrap()).toEqual(50);
-    expect(opt.unwrapOr(10)).toEqual(50);
-  });
-
-  test("matchOption unwrap and unwrapOr for None variant", () => {
-    const opt: Option<number> = None();
-    expect(() => opt.unwrap("Failed!")).toThrowError("Failed!");
-    expect(opt.unwrapOr(10)).toEqual(10);
   });
 });
