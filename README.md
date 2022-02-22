@@ -1,4 +1,4 @@
-# RustScript
+# TypeSafely
 
 TypeScript types (`Option`, `Result` and `AsyncResult`) designed to emulate Rust types and patterns.
 
