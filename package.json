@@ -4,14 +4,14 @@
   "description": "TypeScript types designed to emulate the Rust Option and Result types.",
   "author": "https://github.com/bonham000",
   "repository": "https://github.com/bonham000/rustscript",
-  "main": "src/main.ts",
+  "main": "src/index.ts",
   "license": "MIT",
   "private": false,
   "scripts": {
     "build": "tsc",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "example": "npx ts-node -O '{\"module\":\"commonjs\"}' ./src/example.ts"
+    "test": "jest --verbose",
+    "test:watch": "jest --watch --verbose",
+    "example": "npx ts-node -O '{\"module\":\"commonjs\"}' ./src/index.ts"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",

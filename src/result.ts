@@ -1,9 +1,11 @@
+import { unwrap, unwrapOr, noopFn, assertUnreachable } from "./utils";
+
 /** ===========================================================================
  * Types
  * ============================================================================
  */
 
-type OkVariant<T> = {
+interface OkVariant<T> {
   ok: true;
   value: T;
   /**
@@ -18,9 +20,19 @@ type OkVariant<T> = {
    * Unwrap the Result or return the given default value.
    */
   unwrapOr: () => T;
-};
+  /**
+   * Perform some action for an Ok variant. This is intended for side
+   * effects or conditional actions, and does not return any values.
+   */
+  ifOk: (fn: ifOkFn<T>) => never;
+  /**
+   * Perform some action for an Ok variant. This does nothing for Err
+   * variants.
+   */
+  ifErr: () => never;
+}
 
-type ErrVariant<T, E> = {
+interface ErrVariant<T, E> {
   ok: false;
   error: E;
   /**
@@ -35,9 +47,18 @@ type ErrVariant<T, E> = {
    * Unwrap the Result or return the given default value.
    */
   unwrapOr: (defaultValue: T) => T;
-};
+  /**
+   * Perform some action for an Ok variant. This does nothing for Err
+   * variants.
+   */
+  ifOk: () => never;
+  /**
+   * Perform some action for an Err variant.
+   */
+  ifErr: (fn: ifErrFn<E>) => never;
+}
 
-type LoadingVariant<T> = {
+interface AsyncLoadingVariant<T> {
   ok: false;
   loading: true;
   /**
@@ -52,6 +73,56 @@ type LoadingVariant<T> = {
    * Unwrap the Result or return the given default value.
    */
   unwrapOr: (defaultValue: T) => T;
+  /**
+   * Perform some action for a Some variant. This does nothing for Loading
+   * variants.
+   */
+  ifOk: () => never;
+  /**
+   * Perform some action for an Err variant. This does nothing for Loading
+   * variants.
+   */
+  ifErr: () => never;
+  /**
+   * Perform some action for a Loading variant.
+   */
+  ifLoading: (fn: ifLoadingFn) => never;
+}
+
+/**
+ * Method which runs a callback function conditionally for an Ok Result
+ * or AsyncResult type.
+ */
+type ifOkFn<T> = (value: T) => any;
+const ifOkFn = <T>(value: T) => {
+  return (fn: ifOkFn<T>) => {
+    fn(value);
+    return null as never;
+  };
+};
+
+/**
+ * Method which runs a callback function conditionally for an Err Result
+ * or AsyncResult type.
+ */
+type ifErrFn<E> = (error: E) => any;
+const ifErrFn = <E>(error: E) => {
+  return (fn: ifErrFn<E>) => {
+    fn(error);
+    return null as never;
+  };
+};
+
+/**
+ * Method which runs a callback function conditionally for a Loading Result
+ * or AsyncResult type.
+ */
+type ifLoadingFn = () => any;
+const ifLoadingFn = () => {
+  return (fn: ifLoadingFn) => {
+    fn();
+    return null as never;
+  };
 };
 
 /** ===========================================================================
@@ -73,6 +144,8 @@ export const Ok = <T>(value: T): Result<T, never> => ({
   value,
   unwrap: () => value,
   unwrapOr: () => value,
+  ifOk: ifOkFn(value),
+  ifErr: noopFn,
 });
 
 /**
@@ -83,6 +156,8 @@ export const Err = <T, E>(error: E): Result<T, E> => ({
   error,
   unwrap: unwrap("Tried to unwrap a Result which was in the Err state!"),
   unwrapOr: unwrapOr<T>(),
+  ifOk: noopFn,
+  ifErr: ifErrFn(error),
 });
 
 interface ResultMatcher<T, E, R1, R2> {
@@ -115,14 +190,30 @@ export const matchResult = <T, E, R1, R2>(
  * ============================================================================
  */
 
+interface AsyncOkVariant<T> extends OkVariant<T> {
+  /**
+   * Perform some action for a Loading variant. This does nothing for Err
+   * variants.
+   */
+  ifLoading: () => never;
+}
+
+interface AsyncErrVariant<T, E> extends ErrVariant<T, E> {
+  /**
+   * Perform some action for a Loading variant. This does nothing for Err
+   * variants.
+   */
+  ifLoading: () => never;
+}
+
 /**
  * An AsyncResult type can model asynchronously derived values and exists in
  * one of three states: 'ok' 'err' or 'loading'.
  */
 export type AsyncResult<T, E> =
-  | OkVariant<T>
-  | ErrVariant<T, E>
-  | LoadingVariant<T>;
+  | AsyncOkVariant<T>
+  | AsyncErrVariant<T, E>
+  | AsyncLoadingVariant<T>;
 
 /**
  * Create a new AsyncResult Ok variant.
@@ -132,6 +223,9 @@ export const AsyncOk = <T>(value: T): AsyncResult<T, never> => ({
   value,
   unwrap: () => value,
   unwrapOr: () => value,
+  ifOk: ifOkFn(value),
+  ifErr: noopFn,
+  ifLoading: noopFn,
 });
 
 /**
@@ -142,6 +236,9 @@ export const AsyncErr = <T, E>(error: E): AsyncResult<T, E> => ({
   error,
   unwrap: unwrap("Tried to unwrap an AsyncResult which was in the Err state!"),
   unwrapOr: unwrapOr<T>(),
+  ifOk: noopFn,
+  ifErr: ifErrFn(error),
+  ifLoading: noopFn,
 });
 
 /**
@@ -154,6 +251,9 @@ export const AsyncResultLoading = <T>(): AsyncResult<T, never> => ({
     "Tried to unwrap an AsyncResult which was in the AsyncResultLoading state!",
   ),
   unwrapOr: unwrapOr<T>(),
+  ifOk: noopFn,
+  ifErr: noopFn,
+  ifLoading: ifLoadingFn(),
 });
 
 interface AsyncResultMatcher<T, E, R1, R2, R3> {
@@ -183,168 +283,4 @@ export const matchAsyncResult = <T, E, R1, R2, R3>(
     // No other states exist
     return assertUnreachable(asyncResult);
   }
-};
-
-/** ===========================================================================
- * Option Type
- * ============================================================================
- */
-
-type SomeVariant<T> = {
-  value: T;
-  some: true;
-  /**
-   * Unwrap the Option and return the enclosed value. Will throw an error
-   * if the Option is in the None state.
-   *
-   * The optional message argument will be used as the error message in the
-   * event of an error.
-   */
-  unwrap: (message?: string) => T;
-  /**
-   * Unwrap the Option or return the given default value.
-   */
-  unwrapOr: () => T;
-  /**
-   * Perform some action for a Some variant. This is intended for side
-   * effects or conditional actions, and does not return any values.
-   */
-  ifSome: (fn: IfSomeFn<T>) => never;
-  /**
-   * Perform some action for a None variant. This does nothing for Some
-   * variants.
-   */
-  ifNone: () => never;
-};
-
-type NoneVariant<T> = {
-  some: false;
-  /**
-   * Unwrap the Option and return the enclosed value. Will throw an error
-   * if the Option is in the None state.
-   */
-  unwrap: (message?: string) => T;
-  /**
-   * Unwrap the Option or return the given default value.
-   */
-  unwrapOr: (defaultValue: T) => T;
-  /**
-   * Perform some action for a Some variant. This does nothing for None
-   * variants.
-   */
-  ifSome: () => never;
-  /**
-   * Perform some action for a None variant. This is intended for side
-   * effects or conditional actions, and does not return any values.
-   */
-  ifNone: (fn: IfNoneFn) => never;
-};
-
-/**
- * The Option type models a value which is either present or absent.
- */
-export type Option<T> = SomeVariant<T> | NoneVariant<T>;
-
-/**
- * Method which runs a callback function conditionally for a Some Option
- * variant.
- */
-type IfSomeFn<T> = (value: T) => any;
-const ifSomeFn = <T>(value: T) => {
-  return (fn: IfSomeFn<T>) => {
-    fn(value);
-    return null as never;
-  };
-};
-
-/**
- * Method which runs a callback function conditionally for a None Option
- * variant.
- */
-type IfNoneFn = () => any;
-const ifNoneFn = () => {
-  return (fn: IfNoneFn) => {
-    fn();
-    return null as never;
-  };
-};
-
-/**
- * Create a new Option Some variant.
- */
-export const Some = <T>(value: T): Option<T> => ({
-  some: true,
-  value,
-  unwrap: () => value,
-  unwrapOr: () => value,
-  ifSome: ifSomeFn(value),
-  ifNone: () => null as never,
-});
-
-/**
- * Create a new Option None variant.
- */
-export const None = <T>(): Option<T> => ({
-  some: false,
-  unwrap: unwrap("Tried to unwrap an Option which was in the None state!"),
-  unwrapOr: unwrapOr<T>(),
-  ifSome: () => null as never,
-  ifNone: ifNoneFn(),
-});
-
-interface OptionMatcher<T, R1, R2> {
-  some: (value: T) => R1;
-  none: () => R2;
-}
-
-/**
- * Option match statement which requires 'some' and 'none' branches to
- * handle each Option variant.
- */
-export const matchOption = <T, R1, R2>(
-  opt: Option<T>,
-  matcher: OptionMatcher<T, R1, R2>,
-) => {
-  if (opt.some === true) {
-    // Some variant
-    return matcher.some(opt.value);
-  } else if (opt.some === false) {
-    // None variant
-    return matcher.none();
-  } else {
-    // No other states exist
-    return assertUnreachable(opt);
-  }
-};
-
-/** ===========================================================================
- * Helper Functions
- * ============================================================================
- */
-
-/**
- * Assert a value cannot exist.
- */
-export const assertUnreachable = (x: never): never => {
-  throw new Error(
-    `assertUnreachable received a value which should not exist: ${JSON.stringify(
-      x,
-    )}`,
-  );
-};
-
-/**
- * Function to handle unwrapping values.
- */
-const unwrap = (defaultMessage: string) => (message?: string) => {
-  throw new Error(message || defaultMessage);
-};
-
-/**
- * Unwrap which provides a default value instead of throwing an error.
- */
-const unwrapOr = <T>() => {
-  return (defaultValue: T) => {
-    return defaultValue;
-  };
 };

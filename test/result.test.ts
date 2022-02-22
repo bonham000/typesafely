@@ -6,81 +6,8 @@ import {
   AsyncResultLoading,
   AsyncOk,
   AsyncErr,
-  Option,
-  Some,
-  matchOption,
-  None,
-  assertUnreachable,
-} from "./main";
-
-const panic = () => {
-  throw new Error("An invalid match branch case occurred!");
-};
-
-describe("assertUnreachable", () => {
-  test("Throws for any given value", () => {
-    const x = 500 as never;
-    expect(() => assertUnreachable(x)).toThrow();
-  });
-});
-
-describe("Option Type", () => {
-  test("matchOption Some variant", () => {
-    const opt: Option<number> = Some(1000);
-    const value = matchOption(opt, {
-      some: (x) => x,
-      none: panic,
-    });
-    expect(value).toEqual(1000);
-  });
-
-  test("matchOption None variant", () => {
-    const opt: Option<number> = None();
-    const value = matchOption(opt, {
-      some: (x) => x,
-      none: () => 5000,
-    });
-    expect(value).toEqual(5000);
-  });
-
-  test("matchOption unwrap and unwrapOr for Some variant", () => {
-    const opt: Option<number> = Some(50);
-    expect(opt.unwrap()).toEqual(50);
-    expect(opt.unwrapOr(10)).toEqual(50);
-  });
-
-  test("matchOption unwrap and unwrapOr for None variant", () => {
-    const opt: Option<number> = None();
-    expect(() => opt.unwrap("Failed!")).toThrowError("Failed!");
-    expect(opt.unwrapOr(10)).toEqual(10);
-  });
-
-  test("Option ifSome method", () => {
-    let opt = Some(10);
-    opt.ifSome((value) => {
-      expect(value).toBe(10);
-    });
-
-    opt = None();
-    opt.ifSome(panic);
-
-    const none: Option<number> = None();
-    none.ifSome(panic);
-  });
-
-  test("Option ifNone method", () => {
-    let opt = Some(10);
-    opt.ifNone(panic);
-
-    opt = None();
-    opt.ifSome(panic);
-
-    opt = None();
-    opt.ifNone(() => {
-      expect(true).toBe(true);
-    });
-  });
-});
+} from "../src/result";
+import { panic } from "../src/utils";
 
 describe("Result Type", () => {
   test("matchResult Ok variant", () => {
@@ -117,6 +44,26 @@ describe("Result Type", () => {
   test("Result unwrap and unwrapOr for Err variants", () => {
     expect(() => Err("Error").unwrap("Failed!")).toThrowError("Failed!");
     expect(Err("Error").unwrapOr(700)).toEqual(700);
+  });
+
+  test("Result ifOk and ifErr methods", () => {
+    let flag = false;
+    const result = Ok([1, 2, 3]);
+    result.ifOk((x) => {
+      flag = true;
+      expect(x).toEqual([1, 2, 3]);
+    });
+    expect(flag).toBe(true);
+    result.ifErr(panic);
+
+    flag = false;
+    const err = Err("error!");
+    err.ifOk(panic);
+    err.ifErr((e) => {
+      flag = true;
+      expect(e).toBe("error!");
+    });
+    expect(flag).toBe(true);
   });
 });
 
@@ -175,5 +122,36 @@ describe("AsyncResult Type", () => {
       "Failed!",
     );
     expect(AsyncResultLoading().unwrapOr(700)).toEqual(700);
+  });
+
+  test("AsyncResult ifOk, ifErr, and ifLoading methods", () => {
+    let flag = false;
+    const result = AsyncOk([1, 2, 3]);
+    result.ifOk((x) => {
+      flag = true;
+      expect(x).toEqual([1, 2, 3]);
+    });
+    result.ifLoading(panic);
+    result.ifErr(panic);
+    expect(flag).toBe(true);
+
+    flag = false;
+    const err = AsyncErr("error!");
+    err.ifOk(panic);
+    err.ifLoading(panic);
+    err.ifErr((e) => {
+      flag = true;
+      expect(e).toBe("error!");
+    });
+    expect(flag).toBe(true);
+
+    flag = false;
+    const loading = AsyncResultLoading();
+    loading.ifOk(panic);
+    loading.ifLoading(() => {
+      flag = true;
+    });
+    loading.ifErr(panic);
+    expect(flag).toBe(true);
   });
 });

@@ -4,7 +4,7 @@ import {
   AsyncResult,
   AsyncResultLoading,
   matchAsyncResult,
-} from "./main";
+} from "../src/result";
 
 interface Data {
   id: string;

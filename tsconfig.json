@@ -16,6 +16,6 @@
     "moduleResolution": "node",
     "outDir": "build"
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "src/example.ts", "**/*test.ts"]
+  "include": ["src", "test", "examples/example.ts"],
+  "exclude": ["node_modules", "examples", "test"]
 }

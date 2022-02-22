@@ -37,7 +37,11 @@ AsyncResult
 
 The `Option` and `Result` types are modeled after the same types in Rust. The `AsyncResult` type is like a `Result` but includes an additional state to represent "loading" and is intended to be used for data which is produced asynchronously.
 
-In addition to these type primitives, there are three 'match' functions which can be used to match against these types to define specific code logic for each possible variant state. Each of these types also includes `unwrap` and `unwrapOr` functions. Like in Rust, `unwrap` will "panic" if a type was not in an "Ok" state.
+In addition to these type primitives there are a few additional helper methods and functions:
+
+- 'matching' functions, `matchOption`, `matchResult`, `matchAsyncResult` which operate like Rust match expressions.
+- `unwrap` and `unwrapOr` methods. Like in Rust, `unwrap` will "panic" if a type was not in an "Ok" state.
+- `if[Ok|Err|Loading]` and `if[Some|None]` methods which allow you to conditionally run some logic if a type is of a particular variants. Non-matching variants will be ignored.
 
 ### Option Type
 
