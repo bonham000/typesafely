@@ -3,47 +3,15 @@
 TypeScript types (`Result`, `Option`, and `AsyncResult`) designed to emulate Rust types and patterns.
 
 ```ts
-// Example: data is now a Result type which must exist in the Ok or Err state
+// The data variable is now a Result type which must be either Ok or Err
 const data: Result<CalculationOk, CalculationError> = performCalculation();
-```
 
-## Motivation
-
-The main idea behind this approach is twofold:
-
-- `Result` types can be used to model values which may represent an error state and avoid throwing and catching errors (which is difficult to type-check correctly in TypeScript). A `Result` makes it explicitly that a function may result in an error state, which calling code must handle.
-- `Option` types can be used to model values which may be in a present or absent state, which otherwise in JS/TS are usually modeled with `null` or `undefined`. An `Option` makes this presence or absence more explicit and avoids issues like `0 == false` `"" == false"` etc.
-
-For instance, imagine you have some value which is declared but not initialized yet.
-
-```ts
-const value: number = null;
-// Somewhere else:
-value = 50;
-```
-
-Later you want to check if the value is initialized and then run some other code:
-
-```ts
-if (!!value) {
-  // Run some other code which expects value to be defined
-}
-```
-
-But what if actually, some other code had already set this value to be `0`? Then your `!!value` check would result in `false` and your code wouldn't run.
-
-This is a simple example but a common pitfall and one which TypeScript can't easily protect against. Consider instead this:
-
-```ts
-const value: Option<number> = None();
-
-matchOption(value, {
-  some: (x) => x, // Handle non-empty case
-  none: () => null, // Handle empty case
+// Now pass data to the matchResult function and explicitly handle each state:
+matchResult(data, {
+  ok: (x) => x,
+  err: (e) => e,
 });
 ```
-
-This code avoids the above issues completely.
 
 ## Usage
 
@@ -56,6 +24,8 @@ AsyncResult
 ```
 
 The `Option` and `Result` types are modeled after the same types in Rust. The `AsyncResult` type is like a `Result` but includes an additional state to represent "loading" and is intended to be used for data which is produced asynchronously.
+
+In addition to these type primitives, there are three 'match' functions which can be used to match against these types to define specific code logic for each possible variant state. Each of these types also includes `unwrap` and `unwrapOr` functions. Like in Rust, `unwrap` will "panic" if a type was not in an "Ok" state.
 
 ### Option Type
 
@@ -104,3 +74,41 @@ matchResult(result, {
 ### AsyncResult Type
 
 The `AsyncResult` is similar to the `Result` type but includes another variant to represent loading state. This is especially useful for modelling asynchronously fetched data and provides strong guarantees you are handling the appropriate state of the response. No need to independently set and update loading/error/response states, which is error prone. No need to write out fragile logic like `!loading && !response` to check for error states.
+
+## Motivation
+
+The main idea behind this approach is twofold:
+
+- `Result` types can be used to model values which may represent an error state and avoid throwing and catching errors (which is difficult to type-check correctly in TypeScript). A `Result` makes it explicitly that a function may result in an error state, which calling code must handle.
+- `Option` types can be used to model values which may be in a present or absent state, which otherwise in JS/TS are usually modeled with `null` or `undefined`. An `Option` makes this presence or absence more explicit and avoids issues like `0 == false` `"" == false"` etc.
+
+For instance, imagine you have some value which is declared but not initialized yet.
+
+```ts
+const value: number = null;
+// Somewhere else:
+value = 50;
+```
+
+Later you want to check if the value is initialized and then run some other code:
+
+```ts
+if (!!value) {
+  // Run some other code which expects value to be defined
+}
+```
+
+But what if actually, some other code had already set this value to be `0`? Then your `!!value` check would result in `false` and your code wouldn't run.
+
+This is a simple example but a common pitfall and one which TypeScript can't easily protect against. Consider instead this:
+
+```ts
+const value: Option<number> = None();
+
+matchOption(value, {
+  some: (x) => x, // Handle non-empty case
+  none: () => null, // Handle empty case
+});
+```
+
+This code avoids the above issues completely.
