@@ -151,3 +151,15 @@ export const matchOption = <T, R1, R2>(
     return assertUnreachable(opt);
   }
 };
+
+type NullOrUndefined = null | undefined;
+
+/**
+ * Convert a non-null non-undefined value to a Some Option of that value. If
+ * given null or undefined, a None Option will be returned.
+ */
+export const toOption = <T>(value: T | NullOrUndefined): Option<T> => {
+  const isNullOrUndefined = value === null || value === undefined;
+  const opt: Option<T> = isNullOrUndefined ? None() : Some(value);
+  return opt;
+};

@@ -1,4 +1,4 @@
-import { matchOption, Some, None, Option } from "../src/option";
+import { matchOption, Some, None, Option, toOption } from "../src/option";
 import { panic } from "../src/utils";
 
 describe("Option Type", () => {
@@ -59,5 +59,33 @@ describe("Option Type", () => {
       expect(true).toBe(true);
     });
     expect(flag).toBe(true);
+  });
+
+  test("toOption function", () => {
+    // Only null and undefined should be converted to None Option variants:
+    for (const x of [null, undefined]) {
+      const opt = toOption<string>(x);
+      expect(opt.isSome()).toBe(false);
+      expect(opt.isNone()).toBe(true);
+      expect(opt.unwrapOr("default value")).toBe("default value");
+    }
+
+    // All of these should map to Some Option variants
+    const values = [
+      0,
+      "",
+      NaN,
+      { name: "Joe" },
+      [1, 2, 3],
+      () => "hi",
+      "hello",
+    ];
+
+    for (const x of values) {
+      const opt = toOption(x);
+      expect(opt.isSome()).toBe(true);
+      expect(opt.isNone()).toBe(false);
+      expect(opt.unwrap()).toEqual(x);
+    }
   });
 });
