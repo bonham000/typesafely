@@ -1,6 +1,6 @@
 {
   "name": "typesafely",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "TypeScript types designed to emulate the Rust Option and Result types.",
   "author": "https://github.com/bonham000",
   "repository": "https://github.com/bonham000/typesafely",
