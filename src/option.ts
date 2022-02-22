@@ -5,9 +5,9 @@ import { noopFn, unwrap, unwrapOr, assertUnreachable } from "./utils";
  * ============================================================================
  */
 
-type SomeVariant<T> = {
-  value: T;
-  some: true;
+interface SomeVariant<T> {
+  readonly value: T;
+  readonly some: true;
   /**
    * Unwrap the Option and return the enclosed value. Will throw an error
    * if the Option is in the None state.
@@ -30,10 +30,10 @@ type SomeVariant<T> = {
    * variants.
    */
   ifNone: () => never;
-};
+}
 
-type NoneVariant<T> = {
-  some: false;
+interface NoneVariant<T> {
+  readonly some: false;
   /**
    * Unwrap the Option and return the enclosed value. Will throw an error
    * if the Option is in the None state.
@@ -53,7 +53,7 @@ type NoneVariant<T> = {
    * effects or conditional actions, and does not return any values.
    */
   ifNone: (fn: IfNoneFn) => never;
-};
+}
 
 /**
  * The Option type models a value which is either present or absent.

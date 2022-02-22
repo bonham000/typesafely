@@ -6,8 +6,8 @@ import { unwrap, unwrapOr, noopFn, assertUnreachable } from "./utils";
  */
 
 interface OkVariant<T> {
-  ok: true;
-  value: T;
+  readonly ok: true;
+  readonly value: T;
   /**
    * Unwrap the Result and return the enclosed value. Will throw an error
    * if the Result is in a non-Ok None state.
@@ -33,8 +33,8 @@ interface OkVariant<T> {
 }
 
 interface ErrVariant<T, E> {
-  ok: false;
-  error: E;
+  readonly ok: false;
+  readonly error: E;
   /**
    * Unwrap the Result and return the enclosed value. Will throw an error
    * if the Result is in a non-Ok None state.
@@ -59,8 +59,8 @@ interface ErrVariant<T, E> {
 }
 
 interface AsyncLoadingVariant<T> {
-  ok: false;
-  loading: true;
+  readonly ok: false;
+  readonly loading: true;
   /**
    * Unwrap the Result and return the enclosed value. Will throw an error
    * if the Result is in a non-Ok None state.
