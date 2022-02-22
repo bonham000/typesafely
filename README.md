@@ -14,15 +14,11 @@ The main idea behind this approach is twofold:
 - `Result` types can be used to model values which may represent an error state and avoid throwing and catching errors (which is difficult to type-check correctly in TypeScript). A `Result` makes it explicitly that a function may result in an error state, which calling code must handle.
 - `Option` types can be used to model values which may be in a present or absent state, which otherwise in JS/TS are usually modeled with `null` or `undefined`. An `Option` makes this presence or absence more explicit and avoids issues like `0 == false` `"" == false"` etc.
 
-## Usage
-
-This library provides three high level types `Result`, `AsyncResult`, and `Option`. The `Result` and `Option` type are modeled after the same types in Rust. The `AsyncResult` type is like a `Result` but includes an additional state to represent "loading" and is intended to be used for data which is produced asynchronously.
-
 For instance, imagine you have some value which is declared but not initialized yet.
 
 ```ts
 const value: number = null;
-
+// Somewhere else:
 value = 50;
 ```
 
@@ -49,45 +45,62 @@ matchOption(value, {
 
 This code avoids the above issues completely.
 
-Here is some example code using the `AsyncResult` type. All of this code type checks and it's not possible to interact with an unexpected variant unless you explicitly opt-out of TypeScript's type safety.
+## Usage
 
-This code is also in the `src/example.ts` file which you can alter and run with the `yarn example` command.
+This library provides three high level types:
 
-```ts
-interface Data {
-  id: string;
-  name: string;
-}
-
-interface ErrorResponse {
-  code: number;
-  message: string;
-}
-
-const matchResult = (result: AsyncResult<Data, ErrorResponse>) => {
-  matchAsyncResult(result, {
-    ok: (x) => console.log("[Ok variant]:", x),
-    err: (e) => console.log("[Err variant]:", e),
-    loading: () => console.log("[Loading variant]: loading..."),
-  });
-};
-
-let result: AsyncResult<Data, ErrorResponse> = AsyncResultLoading();
-matchResult(result); // -> Results in loading branch running
-
-const data: Data = {
-  id: "asd7-f8as089df70a9s7dfs0a",
-  name: "Enigma",
-};
-result = await Promise.resolve(AsyncOk(data));
-matchResult(result); // -> Results in ok branch running
-
-const err: ErrorResponse = {
-  code: 100,
-  message: "Failed to fetch data",
-};
-result = await Promise.resolve(AsyncErr(err));
-matchResult(result); // -> Results in err branch running
+```
+Option
+Result
+AsyncResult
 ```
 
-`AsyncResult` is especially useful for modelling asynchronously fetched data and provides strong guarantees you are handling the appropriate state of the response. No need to independently set and update loading/error/response states, which is error prone. No need to write out fragile logic like `!loading && !response` to check for error states.
+The `Option` and `Result` types are modeled after the same types in Rust. The `AsyncResult` type is like a `Result` but includes an additional state to represent "loading" and is intended to be used for data which is produced asynchronously.
+
+### Option Type
+
+```ts
+// Create a Some Option variant and pass it to a match statement
+const opt: Option<number> = Some(900);
+
+// The some branch will run and x will be 900
+matchOption(opt, {
+  some: (x) => console.log("[Some variant]:", x),
+  none: () => console.log("[None variant]"),
+});
+
+// Create a None Option variant and pass it to a match statement
+const opt: Option<number> = None();
+
+// The none branch will run:
+matchOption(opt, {
+  some: (x) => console.log("[Some variant]:", x),
+  none: () => console.log("[None variant]"),
+});
+```
+
+### Result Type
+
+```ts
+// Create an Ok Result variant and pass it to a match statement
+const result: Result<number, string> = Ok(100);
+
+// The ok branch will run and x will be 100:
+matchResult(result, {
+  ok: (x) => console.log("[Ok variant]:", x),
+  err: (e) => console.log("[Err variant]:", e),
+});
+
+// Create an Ok Result variant and pass it to a match statement
+const err: Result<number, string> = Err("Error");
+
+// The err branch will run and e will be "Error"
+matchResult(result, {
+  ok: (x) => console.log("[Ok variant]:", x),
+  err: (e) => console.log("[Err variant]:", e),
+});
+```
+
+### AsyncResult Type
+
+The `AsyncResult` is similar to the `Result` type but includes another variant to represent loading state. This is especially useful for modelling asynchronously fetched data and provides strong guarantees you are handling the appropriate state of the response. No need to independently set and update loading/error/response states, which is error prone. No need to write out fragile logic like `!loading && !response` to check for error states.
