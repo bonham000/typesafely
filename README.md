@@ -110,8 +110,8 @@ const FetchDataComponent: React.FC = () => {
   return (
     <>
       {matchAsyncResult(data, {
-        ok: x => <p>Data: {JSON.stringify(data)}<p>,
-        err: e => <p>Error fetching data</p>,
+        ok: x => <p>Data: {JSON.stringify(x)}<p>,
+        err: e => <p>Error fetching data: {JSON.stringify(e)}</p>,
         loading: () => <p>Loading...</p>,
       })}
     </>
