@@ -8,6 +8,8 @@ import {
   AsyncErr,
   AsyncResult,
   Result,
+  Unit,
+  UnitType,
 } from "../src/result";
 import { panic } from "../src/utils";
 
@@ -182,5 +184,22 @@ describe("AsyncResult Type", () => {
     });
     loading.ifErr(panic);
     expect(flag).toBe(true);
+  });
+
+  test("Result and AsyncResult Unit type", () => {
+    {
+      const result: Result<UnitType, string> = Ok(Unit());
+      expect(result.isOk()).toBe(true);
+      expect(result.isErr()).toBe(false);
+      expect(result.unwrap().isNone()).toBe(true);
+    }
+
+    {
+      const result: AsyncResult<UnitType, string> = AsyncOk(Unit());
+      expect(result.isOk()).toBe(true);
+      expect(result.isErr()).toBe(false);
+      expect(result.isLoading()).toBe(false);
+      expect(result.unwrap().isNone()).toBe(true);
+    }
   });
 });

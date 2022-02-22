@@ -1,3 +1,4 @@
+import { None, Option } from "./option";
 import { unwrap, unwrapOr, noopFn, assertUnreachable } from "./utils";
 
 /** ===========================================================================
@@ -335,3 +336,19 @@ export const matchAsyncResult = <T, E, R1, R2, R3>(
     return assertUnreachable(asyncResult);
   }
 };
+
+/**
+ * Unit type definition. This is used to represent a value when it doesn't
+ * make sense to use any other particular value.
+ */
+export type UnitType = ReturnType<typeof None>;
+
+/**
+ * API is a bit clumsy but we can use a None Option to represent a Unit Type,
+ * which is used when no other meaningful value can be returned. This can be
+ * used to represent the successful Result of a particular operation when
+ * it doesn't make sense to return a specific value.
+ *
+ * Reference: https://doc.rust-lang.org/std/primitive.unit.html
+ */
+export const Unit = (): UnitType => None();
