@@ -3,8 +3,20 @@
 TypeScript types (`Result`, `Option`, and `AsyncResult`) designed to emulate Rust types and patterns.
 
 ```ts
+type CalculationResult = Result<CalculationOk, CalculationError>;
+
+// Return a Result from a calculation which may fail
+const performCalculationSafely = (): CalculationResult => {
+  try {
+    const data = handleCalculation();
+    return Ok(data);
+  } catch (e) {
+    return Err(e.message);
+  }
+};
+
 // The data variable is now a Result type which must be either Ok or Err
-const data: Result<CalculationOk, CalculationError> = performCalculation();
+const data: CalculationResult = performCalculationSafely();
 
 // Now pass data to the matchResult function and explicitly handle each state:
 matchResult(data, {
