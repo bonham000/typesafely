@@ -96,7 +96,7 @@ const FetchDataComponent: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      // Handle fetch data here...
+      // Handle fetching data here...
       setData(AsyncOk({ data: "ok!" }));
     } catch (err) {
       setData(AsyncErr("Failed to fetch data..."));
