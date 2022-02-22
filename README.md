@@ -89,7 +89,7 @@ The `AsyncResult` is similar to the `Result` type but includes another variant t
 
 ## Motivation
 
-The main idea behind this approach is twofold:
+The main idea behind this approach is twofold and similar to the [rationale for the similar design in Rust](https://learning-rust.github.io/docs/e3.option_and_result.html):
 
 - `Result` types can be used to model values which may represent an error state and avoid throwing and catching errors (which is difficult to type-check correctly in TypeScript). A `Result` makes it explicitly that a function may result in an error state, which calling code must handle.
 - `Option` types can be used to model values which may be in a present or absent state, which otherwise in JS/TS are usually modeled with `null` or `undefined`. An `Option` makes this presence or absence more explicit and avoids issues like `0 == false` `"" == false"` etc.
