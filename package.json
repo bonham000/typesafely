@@ -1,10 +1,11 @@
 {
-  "name": "rustscript",
+  "name": "typesafely",
   "version": "0.0.1",
   "description": "TypeScript types designed to emulate the Rust Option and Result types.",
   "author": "https://github.com/bonham000",
-  "repository": "https://github.com/bonham000/rustscript",
-  "main": "src/index.ts",
+  "repository": "https://github.com/bonham000/typesafely",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "license": "MIT",
   "private": false,
   "scripts": {
