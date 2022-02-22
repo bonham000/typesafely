@@ -9,6 +9,14 @@ interface SomeVariant<T> {
   readonly value: T;
   readonly some: true;
   /**
+   * Check if the Option is in the Some state.
+   */
+  isSome: () => true;
+  /**
+   * Check if the Option is in the None state.
+   */
+  isNone: () => false;
+  /**
    * Unwrap the Option and return the enclosed value. Will throw an error
    * if the Option is in the None state.
    *
@@ -34,6 +42,14 @@ interface SomeVariant<T> {
 
 interface NoneVariant<T> {
   readonly some: false;
+  /**
+   * Check if the Option is in the Some state.
+   */
+  isSome: () => false;
+  /**
+   * Check if the Option is in the None state.
+   */
+  isNone: () => true;
   /**
    * Unwrap the Option and return the enclosed value. Will throw an error
    * if the Option is in the None state.
@@ -90,6 +106,8 @@ const ifNoneFn = () => {
 export const Some = <T>(value: T): Option<T> => ({
   some: true,
   value,
+  isSome: () => true,
+  isNone: () => false,
   unwrap: () => value,
   unwrapOr: () => value,
   ifSome: ifSomeFn(value),
@@ -101,6 +119,8 @@ export const Some = <T>(value: T): Option<T> => ({
  */
 export const None = <T>(): Option<T> => ({
   some: false,
+  isSome: () => false,
+  isNone: () => true,
   unwrap: unwrap("Tried to unwrap an Option which was in the None state!"),
   unwrapOr: unwrapOr<T>(),
   ifSome: noopFn,

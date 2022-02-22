@@ -32,6 +32,16 @@ describe("Option Type", () => {
     expect(opt.unwrapOr(10)).toEqual(10);
   });
 
+  test("Option isSome and isNone methods", () => {
+    let opt: Option<number> = Some(100);
+    expect(opt.isSome()).toBe(true);
+    expect(opt.isNone()).toBe(false);
+
+    opt = None();
+    expect(opt.isSome()).toBe(false);
+    expect(opt.isNone()).toBe(true);
+  });
+
   test("Option ifSome and ifNone method", () => {
     let flag = false;
     let opt = Some(10);
