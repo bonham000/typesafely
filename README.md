@@ -89,3 +89,5 @@ const err: ErrorResponse = {
 result = await Promise.resolve(AsyncErr(err));
 matchResult(result); // -> Results in err branch running
 ```
+
+`AsyncResult` is especially useful for modelling asynchronously fetched data and provides strong guarantees you are handling the appropriate state of the response. No need to independently set and update loading/error/response states, which is error prone. No need to write out fragile logic like `!loading && !response` to check for error states.
