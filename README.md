@@ -1,6 +1,6 @@
 # RustScript
 
-TypeScript types designed to emulate Rust types and patterns.
+TypeScript types (`Result`, `Option`, and `AsyncResult`) designed to emulate Rust types and patterns.
 
 ```ts
 // Example: data is now a Result type which must exist in the Ok or Err state
@@ -30,7 +30,7 @@ Later you want to check if the value is initialized and then run some other code
 
 ```ts
 if (!!value) {
-  value = 50;
+  // Run some other code which expects value to be defined
 }
 ```
 
