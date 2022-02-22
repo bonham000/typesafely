@@ -2,6 +2,8 @@
 
 TypeScript types (`Option`, `Result` and `AsyncResult`) designed to emulate Rust types and patterns.
 
+There are a lot of npm libraries which do this. Here's another.
+
 ```ts
 type CalculationResult = Result<CalculationOk, CalculationError>;
 
