@@ -87,6 +87,39 @@ matchResult(result, {
 
 The `AsyncResult` is similar to the `Result` type but includes another variant to represent loading state. This is especially useful for modelling asynchronously fetched data and provides strong guarantees you are handling the appropriate state of the response. No need to independently set and update loading/error/response states, which is error prone. No need to write out fragile logic like `!loading && !response` to check for error states.
 
+```tsx
+const FetchDataComponent: React.FC = () => {
+  // Use an AsyncResult to model some asynchronously fetched data
+  const [data, setData] = React.useState<AsyncResult<number, string>>(
+    AsyncResultLoading(),
+  );
+
+  const fetchData = async () => {
+    try {
+      // Handle fetch data here...
+      setData(AsyncOk({ data: "ok!" }));
+    } catch (err) {
+      setData(AsyncErr("Failed to fetch data..."));
+    }
+  }
+
+  React.useEffect(() => {
+    fetchData();
+  });
+
+  return (
+    <>
+      {matchAsyncResult(data, {
+        ok: x => <p>Data: {JSON.stringify(data)}<p>,
+        err: e => <p>Error fetching data</p>,
+        loading: () => <p>Loading...</p>,
+      })}
+    </>
+  );
+};
+
+```
+
 ## Motivation
 
 The main idea behind this approach is twofold and similar to the [rationale for the similar design in Rust](https://learning-rust.github.io/docs/e3.option_and_result.html):
