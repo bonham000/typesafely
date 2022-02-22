@@ -1,0 +1,5 @@
+.github
+.prettierrc
+.vscode
+jest.config.js
+examples
