@@ -1,4 +1,4 @@
-import { None, Option } from "./option";
+import { None } from "./option";
 import { unwrap, unwrapOr, noopFn, assertUnreachable } from "./utils";
 
 /** ===========================================================================
